@@ -1,0 +1,2094 @@
+/* ---------------------------------------------
+   Global Reset & Typography
+--------------------------------------------- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* prevent horizontal scroll */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center; /* horizontal */
+    align-items: center;     /* vertical */
+}
+html {
+    background: #121212;
+}
+
+body {
+    font-family: "Roboto", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: #e0e0e0;
+    background: linear-gradient(135deg, #121212, #1a1a1a);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 40px 20px;
+    font-size: 16px;
+    overscroll-behavior: none;
+}
+
+#main-title {
+    color: #ffffff;
+    font-size: 50px;
+    font-weight: 500;
+    text-align: center;
+    margin: 30px 0 20px 0; /* top/bottom spacing */
+}
+
+
+/* Styles only for WebKit browsers */
+@supports (-webkit-appearance: none) {
+    body {
+        background:
+            repeating-linear-gradient(
+                135deg,
+                rgba(33,33,33,0.05),
+                rgba(33,33,33,0.05) 20px,
+                rgba(15,15,15,0.05) 150px,
+                rgba(15,15,15,0.05) 250px
+            ),
+            linear-gradient(135deg, #121212, #1a1a1a);
+    }
+}
+
+/* Styles only for Firefox */
+@-moz-document url-prefix() {
+    body {
+        background: linear-gradient(135deg, #121212, #1a1a1a);        
+  }
+}
+
+
+
+/* ---------------------------------------------
+   Login Page
+--------------------------------------------- */
+
+.login-wrapper {
+    background: #1e1e1e;
+    max-width: 400px;
+    width: 100%;
+    margin: 0px 20px;
+    padding: 45px 20px 30px 20px;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* distribute inputs and button */
+    gap: 15px;
+    min-height: 300px; /* ensures enough space for button at bottom */
+}
+
+#login-form {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* expand to fill wrapper */
+    justify-content: space-between; /* inputs at top, button at bottom */
+    width: 100%;
+}
+
+.inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#login-form input {
+    padding: 12px;
+    padding-left: 40px;
+    border-radius: 12px;
+    border: 1px solid #666;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 16px;
+    text-align: left;
+}
+
+#login-error {
+    min-height: 1.5em;
+    text-align: center;
+}
+
+input:focus::placeholder {
+    color: transparent;
+}
+
+#login-button-row {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 0px;
+    border-top: 1px solid #333;
+}
+
+/* Left icon for username and password */
+.input-wrapper,
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #606060;
+  pointer-events: none; /* let user type through icon */
+}
+
+/* Adjust input padding for icons */
+.input-wrapper input {
+  width: 100%;
+  padding-left: 40px; /* space for person icon */
+  box-sizing: border-box;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-left: 40px; /* space for lock icon */
+  padding-right: 48px; /* space for eye toggle */
+  box-sizing: border-box;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #606060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 32px; /* clickable area */
+  height: 32px;
+}
+
+.eye-container {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  width: 32px; /* fixed for both eyes */
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a;
+  border: 0;
+  padding: 0;
+}
+
+.eye-container svg {
+    width: 20px;
+    height: 20px;
+    color: #bbb;
+    transition: color 0.3s ease; /* smooth transition on color change */
+}
+
+.eye-container svg:hover {
+    color: #fff;
+}
+
+/* Hide password reveal button in MS Edge */
+::-ms-reveal {
+    display: none;
+}
+
+
+
+/* ---------------------------------------------
+   Busy Overlay
+--------------------------------------------- */
+
+/* Fullscreen overlay */
+.busy-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5); /* dark transparent background */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: none; /* hidden by default */
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+}
+
+/* Spinner */
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.busy-overlay-text {
+  color: white;
+  margin-top: 15px;
+  font-size: 18px;
+}
+
+
+
+/* ---------------------------------------------
+   Overwrite Modal & Overlay
+--------------------------------------------- */
+
+/* Overlay */
+#overwrite-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    z-index: 9999;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+#overwrite-overlay.active {
+    display: flex;
+}
+
+/* Modal container */
+#overwrite-modal {
+    background: #1e1e1e;
+    border-radius: 16px;
+    /*box-shadow: 0 0 40px 10px rgba(255, 255, 255, 0.05);*/
+    width: 600px;
+    max-width: 90%;
+    pointer-events: all;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+}
+
+/* Title */
+#overwrite-modal h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    padding: 16px;
+    border-bottom: 1px solid #333;
+    text-align: center;
+}
+
+/* File details */
+.file-details {
+    display: flex;
+    background: #252525;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 24px;
+    font-size: 14px;
+    color: #ddd;
+    overflow-wrap: anywhere;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Buttons row */
+.button-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid #333;
+}
+
+/* Buttons styling */
+.overwrite-ok,
+.overwrite-cancel {
+    width: 110px;
+    height: 32px;
+    padding: 4px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.overwrite-ok,
+.overwrite-cancel {
+    background: #3a3a3a;
+    color: #f0f0f0;
+}
+
+/* Scrollbar styling */
+.file-details::-webkit-scrollbar {
+    width: 8px;
+}
+
+.file-details::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+}
+
+.file-details::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+
+
+/* ---------------------------------------------
+   Change Password Modal & Overlay
+--------------------------------------------- */
+
+/* Overlay */
+#change-password-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    z-index: 9999;
+}
+
+#change-password-overlay.active {
+    display: flex;
+}
+
+/* Modal container */
+/* Transparent wrapper: gives the browser a form boundary for autofill scoping
+   without altering the modal's flex column layout. */
+#change-password-form { display: contents; }
+
+#change-password-modal {
+    position: relative;
+    margin: 8px 24px;
+    display: flex;           /* ensure proper layout */
+    align-items: center;     /* vertically centers input */
+    background: #1e1e1e;
+    border-radius: 16px;
+    width: 500px;
+    max-width: 90%;
+    pointer-events: all;
+    text-align: left;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 20px 20px;
+}
+
+/* Title */
+#change-password-modal h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    padding: 16px;
+    border-bottom: 1px solid #333;
+    text-align: center;
+    width: 100%;
+}
+
+/* Password rules & message */
+#change-password-modal #password-rules {
+    width: 100%;
+    padding: 12px 10px;
+    font-size: 14px;
+    color: #bbb;
+    overflow-wrap: anywhere;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#change-password-modal #change-password-msg {
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    min-height: 1.5em;
+    font-size: 14px;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* Password wrapper for positioning eye */
+#change-password-modal .password-wrapper {
+    position: relative;
+    margin: 8px 24px;
+}
+
+/* Inputs */
+#change-password-modal input[type="password"],
+#change-password-modal input[type="text"] {
+    width: 100%;
+    padding: 8px 20px 8px 12px; /* extra space for eye icon */
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background: #252525;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+/* Buttons row: full-width, separated from the content by a line. Colour comes
+   from the shared .modal-btn-* classes (master action green). */
+#change-password-modal .button-row {
+    width: 100%;
+    display: flex;
+    gap: 12px;
+    padding: 16px 0px 4px;
+    margin-top: 8px;
+    border-top: 1px solid #333;
+}
+
+#change-password-modal .change-password-ok,
+#change-password-modal .change-password-cancel {
+    flex: 1;
+    height: 40px;
+    padding: 4px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+/* Scrollbar styling */
+#change-password-modal #password-rules::-webkit-scrollbar {
+    width: 8px;
+}
+
+#change-password-modal #password-rules::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+}
+
+#change-password-modal #password-rules::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+/* Eye container inside input */
+#change-password-modal .eye-container {
+    background: #252525;
+    right: 12px;
+}
+
+
+/* ---------------------------------------------
+   Shared modal action buttons
+   Used by the change-password, admin, and profile
+   overlays. Master action is green; danger is red.
+--------------------------------------------- */
+.modal-btn-primary { background: #2d7d46; color: #fff; }
+.modal-btn-secondary { background: #3a3a3a; color: #e0e0e0; }
+.modal-btn-danger { background: #7a2c2c; color: #fff; }
+
+@media (hover: hover) and (pointer: fine) {
+    .modal-btn-primary:hover:enabled { background: #359a54; color: #fff; }
+    .modal-btn-secondary:hover:enabled { background: #4a4a4a; color: #fff; }
+    .modal-btn-danger:hover:enabled { background: #a33; color: #fff; }
+}
+
+
+/* ---------------------------------------------
+   Profile Modal & Overlay
+   Same visual language as the change-password modal:
+   centered title over a divider, a full-width green
+   master action, then a separated block of secondary
+   and destructive actions.
+--------------------------------------------- */
+#profile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    z-index: 9999;
+}
+
+#profile-overlay.active { display: flex; }
+
+#profile-modal {
+    margin: 8px 24px;
+    display: flex;
+    flex-direction: column;
+    background: #1e1e1e;
+    border-radius: 16px;
+    width: 460px;
+    max-width: 90%;
+    pointer-events: all;
+    text-align: left;
+    overflow: hidden;
+    padding: 0;
+}
+
+/* Title row: name on the left, the icon toolbar on the right, divider under —
+   the same header layout as the admin panel (.admin-header). */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #333;
+}
+
+#profile-modal h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.profile-body {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px 20px;
+}
+
+.profile-label {
+    font-size: 13px;
+    color: #bbb;
+    margin: 6px 2px 4px;
+}
+
+/* First and last name sit side by side, each stacked over its label. */
+.profile-name-row {
+    display: flex;
+    gap: 10px;
+}
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+#profile-modal input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background: #252525;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+#profile-msg {
+    min-height: 1.4em;
+    /* Sit well clear of the name inputs, but hug the Save button below. */
+    margin: 26px 2px 6px;
+    font-size: 13px;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* Every profile button spans the full modal width, stacked. */
+.profile-full {
+    display: block;
+    flex: 0 0 auto;
+    width: 100%;
+    height: 42px;
+    padding: 4px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+/* Icon toolbar living in the title row (reusing .admin-tool), aligned right
+   like the admin panel toolbar. */
+.profile-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+
+/* ---------------------------------------------
+   Container Wrapper
+--------------------------------------------- */
+
+/* Make wrapper take full height */
+.container-wrapper {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* horizontally center */
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.container {
+    width: 100%;
+    background: #1e1e1e;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    box-sizing: border-box;
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column; /* stack elements vertically */
+    align-items: center;    /* center inner content horizontally */
+    text-align: center;     /* center text and inline elements */
+}
+
+
+
+/* ---------------------------------------------
+   Menu
+--------------------------------------------- */
+
+#title-container {
+    display: flex;
+    width: 100%;
+    background: #1e1e1e;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    font-family: sans-serif;
+    margin: 10px 0;
+    height: 60px;
+    overflow: hidden; /* keeps menu inside */
+}
+
+#title {
+    color: #eee;
+    font-size: 1.5em;
+    font-weight: 600;
+    text-align: left;
+    margin: 0;
+    line-height: 1;
+    flex-grow: 1;
+}
+
+#burger-menu {
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+#burger-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #eee;
+    transition: color 0.3s ease;
+    background: none;
+    border: 0;
+    padding: 8px;
+    cursor: pointer;
+}
+/* SVG icon: geometrically centred in its box, so it aligns with the menu words
+   identically in every browser (no font-dependent glyph metrics). */
+#burger-icon svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
+}
+
+
+#burger-icon.open {
+    color: #888;
+    transition: color 0.3s ease;
+}
+
+
+/* Menu Items (slide out to the left) */
+#menu-items {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(20px); /* start shifted right */
+    transition: all 0.3s ease;
+    margin-right: 10px; /* spacing before burger */
+}
+
+/* When visible */
+#menu-items.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0); /* slide left into place */
+}
+
+@media (max-width: 500px) {
+    #menu-items { gap: 2px; margin-right: 6px; }
+    #menu-items button { padding: 8px 5px; font-size: 13px; }
+}
+
+/* Each menu item */
+#menu-items button {
+    padding: 8px 8px;
+    border-radius: 6px;
+    color: #ddd;
+    background: none;
+    border: 0;
+    font-family: inherit;
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+}
+
+
+
+/* ---------------------------------------------
+   Drop Area
+--------------------------------------------- */
+#drop-area {
+    width: 100%;
+    height: 420px;
+    border: 2px dashed #888;
+    border-radius: 16px;
+    background: #222222;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* space between main content and quota */
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    font-size: 16px;
+}
+
+#drop-area.highlight {
+    border-color: #ffffff;
+    background: #252525;
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.4);
+}
+
+#drop-area.inactive {
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Main content */
+
+#main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1; /* take remaining space */
+    width: 100%;
+}
+
+
+/* File name */
+
+#file-name {
+    min-height: 3em;   /* reserve space for 1–2 lines */
+    max-height: 6em;   /* optional: allow up to 4 lines before scroll */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight:600;
+    color: #bbb;
+    white-space: normal;       /* allow wrapping */
+    overflow-wrap: anywhere;   /* allow breaking at safe points if needed */ 
+    word-break: normal;        /* don't break words arbitrarily */
+    max-width: 100%;           /* prevent overflow beyond container */
+}
+
+
+/* Progress Bar and file size */
+
+.progress-size-wrapper {
+    position: absolute;
+    width: 100%;
+    top: 53%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.progress-container {
+    position: relative;
+    width: 80%;
+    height: 40px;
+    background-color: #111;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+    display: flex;             /* enable flex inside the bar */
+    justify-content: center;   /* horizontal center */
+    align-items: center;       /* vertical center */
+    color: #fff;               /* text color */
+    font-weight: 400;
+    border-radius: 12px;
+    font-size: 1.2em;
+}
+
+.progress-text {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-weight: 400;
+    font-size: 1.2em;
+    pointer-events: none;
+}
+
+#file-size {
+    min-height: 1.5em;
+    margin-top: 8px;
+    font-size: 1em;
+    color: #888;
+}
+    
+/* Link Container */
+
+#drop-area-message {
+    margin-top: 15px;
+    min-height: 3em;
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+    transition: opacity 2s ease;
+}
+
+.copied {
+    color: #3FC987;
+}
+
+.revoked {
+    color: #FFC107;
+}
+
+.paused,
+.regenerated {
+    color: #42A5F5;
+}
+
+.error {
+    color: #FF7b7b;
+}
+
+
+/* Quota display */
+
+#quota-display {
+    font-size: 0.9em;
+    color: #666;
+    text-align: center;
+}
+
+
+
+/* ---------------------------------------------
+   Expiry Input + Unit Selector
+--------------------------------------------- */
+/* The upload limits — max downloads, expiry value, expiry unit — sized to their
+   content (normal inputs for this font), centered as a group. */
+#limits-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+#max-downloads-value,
+#expiry-value,
+#expiry-unit {
+    flex: 1 1 0;
+    min-width: 80px;
+    padding: 10px 12px;
+    border: 1px solid #555;
+    border-radius: 8px;
+    background: #2a2a2a;
+    color: #fff;
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+    transition: border 0.2s, background 0.2s;
+}
+#expiry-unit { cursor: pointer; }
+
+#limits-container input:disabled,
+#limits-container select:disabled {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Remove number input arrows */
+#expiry-value::-webkit-outer-spin-button,
+#expiry-value::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+#expiry-value {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+
+
+/* ---------------------------------------------
+   Buttons
+--------------------------------------------- */
+.buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+    width: 100%;
+}
+
+button {
+    flex: 1;
+    background: #3a3a3a;
+    color: #f0f0f0;
+    padding: 14px 0;
+    border: 1px solid #666;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+button:disabled {
+    background-color: #333;
+    color: #ccc;
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* The upload button turns green once it is armed (a file and valid expiry are
+   set), and the copy-link button once the upload finishes and it activates.
+   Disabled they keep the neutral button:disabled look above. */
+#upload-btn:enabled,
+#copy-btn:enabled {
+    background: #2d7d46;
+    color: #fff;
+    border-color: #2d7d46;
+}
+
+/*#cancel-btn {
+    background-color: #e64547;
+}
+
+#pause-btn {
+    background-color: #cc9a06;
+}
+
+#resume-btn {
+    background-color: #17B169;
+}*/
+    
+
+.hidden { display: none !important; }
+
+
+
+/* ---------------------------------------------
+   Service Unavailable Overlay
+--------------------------------------------- */
+#service-unavailable,
+#rate-limit {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background: transparent;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;       /* stack vertically */
+    justify-content: center;      /* vertical centering of all content */
+    align-items: center;          /* horizontal centering */
+    font-size: 3rem;
+    font-weight: 500;
+    color: #ff6b6b;
+    text-align: center;
+    z-index: 9999;
+    white-space: normal;       /* allow wrapping */
+    overflow-wrap: anywhere;   /* allow breaking at safe points if needed */ 
+    word-break: normal;        /* don't break words arbitrarily */
+}
+
+/* Add spacing for timer */
+#rate-limit div + div {
+    margin-top: 15px;
+    min-height: 2em;
+    font-size: 1rem; /* smaller than main message */
+    color: #f0a0a0;  /* optional lighter color for timer */
+}
+
+
+
+/* ---------------------------------------------
+   Links Modal & Overlay
+--------------------------------------------- */
+/* Overlay */
+#links-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    z-index: 9999;
+}
+
+#links-overlay.active {
+    display: flex;
+}
+
+/* Modal container */
+#links-modal {
+    background: #1c1c1c;
+    border-radius: 16px;
+    /*box-shadow: 0 0 50px rgba(255, 255, 255, 0.10);*/
+    width: 700px;
+    max-width: 90%;
+    max-height: 80%;
+    min-width: 400px;
+    pointer-events: all;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* prevent whole modal scroll */
+    padding: 0;
+}
+
+/* Links modal header: title on the left, the action toolbar + sort filter on
+   the right (mirrors the admin panel header). */
+.links-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 14px 20px;
+    flex-shrink: 0;
+    border-bottom: 1px solid #333;
+}
+
+/* Title in header */
+#links-header-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Toolbar (icon buttons, reusing .admin-tool) + sort filter, grouped right. */
+.links-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#links-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Sort dropdown — matched to the toolbar buttons' height (.admin-tool = 38px). */
+#sort-links {
+    height: 38px;
+    box-sizing: border-box;
+    padding: 0 10px;
+    border-radius: 9px;
+    border: 1px solid #444;
+    background: #2a2a2a;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+    transition: border 0.2s, background 0.2s;
+}
+@media (max-width: 480px) {
+    #sort-links { height: 34px; }
+}
+
+/* Inline status line: copied-link confirmation and action results. Color comes
+   from the state class showMessage() applies (.copied/.error/etc.) — no
+   default color here, or its higher ID specificity would beat those classes. */
+#links-msg {
+    min-height: 0;
+    font-size: 13px;
+    padding: 0 20px;
+    transition: min-height 0.15s;
+}
+#links-msg:not(:empty) {
+    min-height: 1.4em;
+    padding: 8px 20px 0;
+}
+
+/* Scrollable list */
+#links-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 20px;
+    flex-grow: 1;           /* fills remaining space */
+    overflow-y: auto;       /* scroll only the list */
+}
+
+/* Each file card: a selectable, fixed-height row — [dot] [main] [notes]. The
+   main column is exactly four rows: two rows of name, one blank row, then the
+   left-aligned stats. Nothing about a card's content can change its height. */
+.link-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) 280px;
+    align-items: start;
+    column-gap: 18px;
+    background: #252525;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 12px 18px;
+    width: 100%;
+    color: #f0f0f0;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.link-item:hover { background: #2b2b2b; }
+.link-item.selected {
+    background: #26303c;
+    border-color: #3f6188;
+}
+
+/* Radio-style selection indicator, centred over the card's height. */
+.link-select-dot {
+    grid-column: 1;
+    align-self: center;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #666;
+    border-radius: 50%;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.link-item.selected .link-select-dot {
+    border-color: #7ab8ff;
+    background: #7ab8ff;
+    box-shadow: inset 0 0 0 3px #26303c;
+}
+
+/* Middle column: name pinned to the top, stats pinned to the bottom — stretched
+   to the full card height so the two ends land on the card's own top/bottom. */
+.link-item-main {
+    grid-column: 2;
+    min-width: 0;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Name: exactly two rows tall; JS middle-truncates anything longer. */
+.link-item-name {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.4;
+    height: calc(1.4em * 2);
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* Per-card status line (e.g. "Link copied!") in the free row between name and
+   stats. Reserves a line's height so it never shifts the layout when it fills
+   in. Color comes from the state class showMessage() applies — no default
+   color, or it would fight those classes. */
+.link-item-msg {
+    min-height: 1.4em;
+    font-size: 12.5px;
+    line-height: 1.4;
+}
+
+/* Stats: a single left-aligned line — expiry, downloads, size. */
+.link-item-stats {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 12.5px;
+    color: #9a9a9a;
+}
+.link-item-stats span {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    min-width: 0;
+}
+.link-detail-icon {
+    width: 13px;
+    height: 13px;
+    margin-right: 4px;
+    flex: 0 0 auto;
+}
+.link-status-expired { color: #d9a34a; }
+/* Revoked, and a downloads cell whose cap has been hit, share the same red. */
+.link-status-revoked,
+.link-status-capped { color: #ff8a80; }
+
+/* Right: notes as a fixed four-line field that scrolls when longer; a muted
+   placeholder shows when there is no note. */
+.link-item-notes {
+    grid-column: 3;
+    align-self: center;
+    height: calc(1.4em * 5);
+    overflow-y: auto;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: #b4b4b4;
+    background: #202020;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 6px 8px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+.link-item-notes.empty { color: #666; font-style: italic; }
+@media (max-width: 560px) {
+    .link-item { grid-template-columns: auto minmax(0, 1fr) 130px; }
+    .link-item-stats { flex-wrap: wrap; gap: 6px 14px; }
+}
+@media (max-width: 400px) {
+    .link-item {
+        grid-template-columns: auto minmax(0, 1fr);
+        row-gap: 8px;
+    }
+    .link-item-notes {
+        grid-column: 2;
+        height: auto;
+        max-height: calc(1.4em * 3);
+    }
+    .link-item-stats { flex-wrap: wrap; gap: 4px 12px; }
+}
+
+/* Scrollbar styling */
+#links-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#links-list::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+}
+
+#links-list::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+/* Placeholder */
+.link-item.placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    font-style: italic;
+    color: #666;
+    cursor: default;
+}
+.link-item.placeholder:hover { background: #252525; }
+
+.empty-message {
+    text-align: center;
+    width: 100%;
+    color: #666;
+}
+
+/* --- Link settings overlay (backdrop reuses .admin-form-overlay) --- */
+#links-settings-modal {
+    background: #1c1c1c;
+    border-radius: 16px;
+    width: 480px;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Header: title on the left, action icons on the right — like the admin and
+   profile overlays. */
+.links-settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #333;
+}
+.links-settings-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+.links-settings-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+/* Save is the primary action — tint its icon green. */
+.links-tool-save { color: #4bbf73; }
+
+.links-settings-body {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px 20px;
+}
+
+/* Read-only info block: the link + a copy control, then a label/value grid. */
+.links-info {
+    background: #232323;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+}
+.link-url-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+#links-detail-url {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background: #191919;
+    color: #cfcfcf;
+    font-size: 12.5px;
+}
+/* Read-only display, not an editable control — no focus ring on click/tab. */
+#links-detail-url:focus,
+#links-detail-url:focus-visible {
+    outline: none !important;
+}
+.link-url-row .admin-tool { flex: 0 0 auto; }
+
+.links-info-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 14px;
+    font-size: 13px;
+}
+.links-info-grid > span:nth-child(odd) { color: #888; }
+.links-info-grid > span:nth-child(even) {
+    justify-self: end;
+    text-align: right;
+    color: #d8d8d8;
+}
+.links-info-grid .link-status-active { color: #4bbf73; }
+
+.links-field-label {
+    display: block;
+    font-size: 13px;
+    color: #bbb;
+    margin-bottom: 5px;
+}
+/* Limits row: max downloads pinned left, the expiry group pinned right. The
+   expiry input matches the max-downloads width; the gap between them needs no
+   separator. */
+.links-limits-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    margin-bottom: 14px;
+}
+.links-limit-group {
+    display: flex;
+    flex-direction: column;
+}
+/* The expiry group sits on the right of the row, but its own label stays
+   left-aligned above its input. */
+.links-limit-expiry {
+    align-items: flex-start;
+}
+.links-expiry-input {
+    display: flex;
+    gap: 8px;
+}
+#links-settings-form input,
+#links-settings-form select,
+#links-settings-form textarea {
+    padding: 10px 12px;
+    border: 1px solid #555;
+    border-radius: 8px;
+    background: #252525;
+    color: #fff;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+/* Max downloads a touch wider than its label; the expiry value matches it. */
+#links-max-downloads { width: 112px; }
+#links-expiry-value { width: 112px; }
+#links-expiry-unit { width: 92px; }
+#links-notes {
+    display: block;
+    width: 100%;
+    margin-bottom: 16px;
+    resize: none;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+/* Color comes from the state class showMessage() applies (.copied/.error) —
+   no default color here, or its higher ID specificity would beat those classes. */
+#links-settings-msg {
+    margin: 4px 0 0;
+    min-height: 1.2em;
+    font-size: 13px;
+    text-align: center;
+}
+
+
+
+/* ---------------------------------------------
+   Other stuff
+--------------------------------------------- */
+
+/* Disable autofill coloring */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px #2a2a2a inset !important; /* match input bg */
+    -webkit-text-fill-color: #e0e0e0 !important; /* text color */
+    transition: background-color 5000s ease-in-out 0s; /* prevent flash */
+}
+
+/* Disable blue tap highlight */
+* {
+    -webkit-tap-highlight-color: transparent; /* Chrome, Safari, Android */
+}
+
+
+/* Keep mouse focus quiet; keyboard focus gets a discreet, on-theme ring rather
+   than the loud bright-blue default. */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.4) !important;
+    outline-offset: 2px;
+}
+
+/* WebKit Browsers: Chrome, Edge, Safari */
+
+/* Width of the scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px; /* optional for horizontal scrollbars */
+}
+
+/* The draggable part (thumb) */
+::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 100, 100, 0.3);
+    border-radius: 6px;
+}
+
+/* Thumb hover/active states (keep same color to avoid blue highlight) */
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+    background-color: rgba(100, 100, 100, 0.3);
+}
+
+/* The track (background of scrollbar) */
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Firefox */
+
+* {
+    scrollbar-color: rgba(100, 100, 100, 0.3) transparent; /* thumb and track */
+}
+
+/* Only apply hover effects on devices that support hover */
+@media (hover: hover) and (pointer: fine) {
+    button:hover:enabled {
+        background: #4a4a4a;
+        color: #fff;
+    }
+
+    #upload-btn:hover:enabled,
+    #copy-btn:hover:enabled {
+        background: #359a54;
+        color: #fff;
+    }
+
+    #menu-items button:hover {
+        background: #444;
+        color: #fff;
+    }
+
+    .overwrite-ok:hover {
+        background: #505050;
+    }
+
+    .overwrite-cancel:hover {
+        background: #7a2c2c;
+    }
+
+    #sort-links:hover {
+        background: #333;
+        border-color: #777;
+    }
+}
+
+/* ---------------------------------------------
+   Admin Panel (User Management)
+   Matches the app's neutral dark theme: #1c1c1c modal,
+   #252525 cards, #333 dividers, green-for-create, red-for-delete.
+--------------------------------------------- */
+.admin-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    z-index: 9999;
+}
+.admin-overlay.hidden { display: none; }
+
+#admin-modal {
+    display: flex;
+    flex-direction: column;
+    background: #1c1c1c;
+    color: #e0e0e0;
+    border-radius: 16px;
+    width: 700px;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow: hidden;
+    text-align: left;
+    pointer-events: all;
+}
+
+/* Header: title on the left, action toolbar on the right (stays fixed while
+   the body scrolls). */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    flex-shrink: 0;
+    padding: 14px 20px;
+    border-bottom: 1px solid #333;
+}
+.admin-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Scrollable body */
+#admin-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 20px;
+}
+
+/* Action toolbar — icon buttons in the header's upper-right, acting on the
+   selected row. */
+#admin-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.admin-tool-sep {
+    width: 1px;
+    align-self: stretch;
+    margin: 2px 4px;
+    background: #3a3a3a;
+}
+.admin-tool {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    background: #2a2a2a;
+    color: #d0d0d0;
+    border: 1px solid #444;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
+}
+.admin-tool svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    pointer-events: none;
+}
+/* The stroke-based (Feather-style) glyphs must not take the fill. */
+.admin-tool svg[stroke] { fill: none; }
+.admin-tool:hover:not(:disabled) { background: #383838; border-color: #666; color: #fff; }
+.admin-tool:disabled { opacity: 0.32; cursor: default; pointer-events: none; }
+/* Reflect the selected user's current state on the toggles. */
+.admin-tool.admin-tool-on { color: #7ab8ff; border-color: #3f5f80; }
+.admin-tool-danger { color: #ff8a80; }
+.admin-tool-danger:hover:not(:disabled) {
+    background: #7a2c2c;
+    border-color: #a33;
+    color: #fff;
+}
+
+/* Keep the whole toolbar on one line under the title on narrow screens. */
+@media (max-width: 480px) {
+    #admin-toolbar { gap: 6px; }
+    .admin-tool { width: 34px; height: 34px; border-radius: 8px; }
+    .admin-tool svg { width: 18px; height: 18px; }
+    .admin-tool-sep { margin: 2px 2px; }
+}
+
+/* Inline status / error line */
+#admin-msg {
+    min-height: 0;
+    color: #ff8a80;
+    font-size: 13px;
+    padding: 0 20px;
+    transition: min-height 0.15s;
+}
+#admin-msg:not(:empty) {
+    min-height: 1.4em;
+    padding: 10px 20px 0;
+}
+
+/* Selectable user card. A three-row grid: the left column (full name, username,
+   date + chips) is aligned to the left extreme; the right column (usage bar,
+   quota stats, file count) to the right extreme. The three rows line up across
+   the two columns. The selection dot spans all three rows. */
+.admin-user-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 5px;
+    background: #252525;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.admin-user-row:hover { background: #2b2b2b; }
+.admin-user-row.selected {
+    background: #26303c;
+    border-color: #3f6188;
+}
+
+/* Radio-style selection indicator, centred over the three rows. */
+.admin-select-dot {
+    grid-column: 1;
+    grid-row: 1 / 4;
+    align-self: center;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #666;
+    border-radius: 50%;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.admin-user-row.selected .admin-select-dot {
+    border-color: #7ab8ff;
+    background: #7ab8ff;
+    box-shadow: inset 0 0 0 3px #26303c;
+}
+
+/* Left column — rows 1-3, aligned to the left extreme. */
+.admin-fullname,
+.admin-username,
+.admin-user-meta {
+    grid-column: 2;
+    justify-self: start;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+.admin-fullname {
+    grid-row: 1;
+    font-size: 15px;
+    font-weight: 600;
+    color: #f0f0f0;
+}
+.admin-fullname.admin-noname { color: #666; font-weight: 500; }
+.admin-username {
+    grid-row: 2;
+    font-size: 13px;
+    color: #9a9a9a;
+}
+.admin-user-meta {
+    grid-row: 3;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+}
+.admin-date {
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+}
+.admin-user-chips {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+}
+
+.admin-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 2px 9px;
+    border-radius: 10px;
+    text-transform: uppercase;
+}
+.admin-tag-superadmin { background: #8a5a1f; color: #fff; }
+.admin-tag-admin { background: #4b4b8f; color: #fff; }
+.admin-tag-user { background: #3a3a3a; color: #ccc; }
+.admin-tag-active { background: #2d7d46; color: #fff; }
+.admin-tag-disabled { background: #7a2c2c; color: #f0d0d0; }
+
+/* Right column — rows 1-3, aligned to the right extreme. The bar's fixed width
+   keeps bars, quota stats, and file counts aligned across rows and stops any
+   shift when a value changes. */
+.admin-usage-track {
+    grid-column: 3;
+    grid-row: 1;
+    width: 220px;
+    max-width: 100%;
+    height: 6px;
+    background: #111;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.admin-usage-fill {
+    width: 0;                 /* fallback: an invalid inline width renders empty, not full */
+    height: 100%;
+    background: #2d7d46;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+.admin-usage-fill-full { background: #c0392b; }
+.admin-usage-text {
+    grid-column: 3;
+    grid-row: 2;
+    justify-self: end;
+    text-align: right;
+    font-size: 12px;
+    color: #999;
+    white-space: nowrap;
+}
+.admin-usage-files {
+    grid-column: 3;
+    grid-row: 3;
+    justify-self: end;
+    text-align: right;
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+}
+
+/* Shrink the meter on small screens so the card never overflows. */
+@media (max-width: 520px) {
+    .admin-user-row { column-gap: 12px; }
+    .admin-usage-track { width: 120px; }
+}
+@media (max-width: 400px) {
+    .admin-usage-track { width: 90px; }
+}
+
+.admin-empty {
+    text-align: center;
+    color: #666;
+    padding: 24px 0;
+    font-style: italic;
+}
+
+/* Add / reset / quota form — a modal over the admin panel */
+.admin-form-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    z-index: 10000;              /* above the admin panel (9999) */
+}
+.admin-form-overlay.hidden { display: none; }
+
+#admin-form-modal {
+    background: #1c1c1c;
+    border-radius: 16px;
+    width: 480px;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 22px 22px 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+/* Centered title over a divider, matching the change-password modal. */
+#admin-form h3 {
+    margin: 0 0 4px;
+    padding: 4px 16px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+/* Inputs live in a body block between the title divider and the button row. */
+.admin-form-body {
+    display: flex;
+    flex-direction: column;
+    padding-top: 16px;
+}
+#admin-form input,
+#admin-form select {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border: 1px solid #555;
+    border-radius: 8px;
+    background: #252525;
+    color: #fff;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+/* Quota amount + unit selector on one line. Scoped under #admin-form so these
+   win over the generic `#admin-form input, #admin-form select { width:100% }`. */
+.admin-quota-input {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+#admin-form .admin-quota-input input {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    margin-bottom: 0;
+}
+#admin-form .admin-quota-input select {
+    flex: 0 0 auto;
+    width: 84px;
+    margin-bottom: 0;
+}
+/* First + last name on one line in the add-user form. */
+.admin-name-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+#admin-form .admin-name-row input {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    margin-bottom: 0;
+}
+/* Button row: full width, separated from the content by a line, master green. */
+.admin-form-buttons {
+    display: flex;
+    gap: 12px;
+    padding-top: 16px;
+    margin-top: 4px;
+    border-top: 1px solid #333;
+}
+#admin-form-submit,
+#admin-form-cancel {
+    flex: 1;
+    height: 40px;
+    padding: 4px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+#admin-form-submit { background: #2d7d46; color: #fff; }
+#admin-form-submit:hover { background: #359a54; }
+#admin-form-cancel { background: #3a3a3a; color: #e0e0e0; }
+#admin-form-cancel:hover { background: #4a4a4a; }
+#admin-form-msg {
+    margin-top: 4px;
+    min-height: 1.2em;
+    color: #ff8a80;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* In-app confirmation dialog for destructive admin actions (no browser popups) */
+.admin-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 10001;             /* above the admin panel and its form overlay */
+}
+.admin-confirm-modal {
+    background: #1c1c1c;
+    border-radius: 16px;
+    padding: 22px 24px;
+    width: 420px;
+    max-width: 100%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+.admin-confirm-msg {
+    margin: 0 0 20px;
+    color: #e8e8e8;
+    font-size: 15px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.admin-confirm-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.admin-confirm-buttons button {
+    flex: 0 0 auto;
+    min-width: 110px;           /* both buttons the same size */
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.admin-confirm-ok { background: #7a2c2c; color: #fff; }
+.admin-confirm-ok:hover { background: #a33; }
+.admin-confirm-cancel { background: #3a3a3a; color: #e0e0e0; }
+.admin-confirm-cancel:hover { background: #4a4a4a; }
+
+/* Disable text selection everywhere */
+* {
+    user-select: none;          /* Standard */
+    -webkit-user-select: none;  /* Chrome, Safari */
+    -moz-user-select: none;     /* Firefox */
+    -ms-user-select: none;      /* IE/Edge */
+}

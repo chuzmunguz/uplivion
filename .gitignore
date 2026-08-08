@@ -1,0 +1,27 @@
+# Runtime state and secrets
+/.env
+/*.env
+/store.db
+/store.db-*
+/share/
+/venv/
+
+# Python/test/editor caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local deployment residue
+*.log
+*.pid
+*.socket
+*~
+*.swp
+
+# Others
+AGENTS.md
+CLAUDE.md
+/logos/

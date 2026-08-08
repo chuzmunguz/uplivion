@@ -1,0 +1,29 @@
+# ===============================================
+# Uplivion Unauthorized / Not Found Filter
+#
+# This filter catches any HTTP request that returned a 401 (Unauthorized), 404 (Not Found), or 444 status code.
+#
+# The ignoreregex is empty, so no requests are explicitly ignored.
+#
+# REAL PURPOSE, given uplivion-http-method already single-strikes any path
+# outside /share on first touch: the 404 slice is what actually matters
+# here — it's the only way to catch someone repeatedly GUESSING share
+# tokens (a single dead/expired/wrong-token link is normal and shouldn't
+# ban a legit recipient, so this jail's higher, tolerant threshold —
+# maxretry=30/10min — exists specifically to distinguish "one bad link" from
+# "systematic token enumeration" without single-strike banning the former.
+#
+# The 401 slice has the same caveat as uplivion-auth-failure: 401s only
+# come from the LAN/WireGuard-gated private vhost, where legitimate access
+# is already covered by ignoreip, so under a correctly configured host this
+# slice can't ban a real outside attacker either — same drift-only value.
+# ===============================================
+
+[Definition]
+failregex = ^<HOST> .*\" (401|404|444) .+$
+ignoreregex =
+
+# Common patterns for nginxs logs
+datepattern = {^LN-BEG}%%ExY(?P<_sep>[-/.])%%m(?P=_sep)%%d[T ]%%H:%%M:%%S(?:[.,]%%f)?(?:\s*%%z)?
+              ^[^\[]*\[({DATE})
+              {^LN-BEG}

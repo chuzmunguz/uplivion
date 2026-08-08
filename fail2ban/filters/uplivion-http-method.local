@@ -1,0 +1,45 @@
+# ===============================================
+# Uplivion HTTP Method Abuse Filter
+#
+# The only path a non-owner is ever meant to touch is /share/<token> (public
+# link hand-off). Everything else — /admin, /profile, /login, /links, static
+# assets, etc. — lives on the LAN/WireGuard-gated private vhost, and access
+# to it is already fully covered by the host's fail2ban ignoreip, not by this
+# whitelist. So this filter deliberately does NOT whitelist any of that: a
+# request to those paths from outside the trusted ranges gets 403'd by nginx
+# first (caught by rule 2 below) or 444'd if it lands on the public vhost
+# (caught by rule 1, since only /share is exempted there).
+#
+# This filter catches:
+# 1. Any HTTP request whose path isn't /share/... or one of the handful of
+#    paths clients request automatically on any navigation (favicon.ico,
+#    apple-touch-icon.png and its -precomposed sibling, .well-known/...) —
+#    those exist only so an innocent link recipient's browser/OS doesn't
+#    self-ban them; the owner doesn't need them, ignoreip already covers
+#    the owner unconditionally. Confirmed against real production logs:
+#    iOS's link-preview prefetcher (UA "NetworkingExtension/...") probes
+#    favicon.ico, apple-touch-icon.png, AND apple-touch-icon-precomposed.png
+#    as a set when a share link arrives via Messages/Mail — all three must
+#    stay exempt or the recipient's own device bans itself before they ever
+#    tap the link.
+# 2. Any HTTP request where the method is not HEAD or GET — nothing on the
+#    whitelisted path surface (rule 1) ever legitimately needs POST or
+#    DELETE, so allowing them here would let e.g. "DELETE /share/<token>"
+#    slip past both rule 1 (path matches) and rule 2 uncaught.
+# 3. Any request that returned a 403 status code.
+#
+# The ignoreregex prevents matching safe HEAD and GET requests to the site root.
+# ===============================================
+
+[Definition]
+failregex = ^<HOST> - - \[.*\] \"[A-Z]+\s/(?!share/|\.well-known|apple-touch-icon(?:-precomposed)?\.png|favicon\.ico).+\".*$
+            ^<HOST> .*\"(?!HEAD|GET)[A-Z]+ .+$
+            ^<HOST> .*\" (403) .+$
+
+
+ignoreregex = ^<HOST> .*\"(HEAD|GET)\s\/\sHTTP\/.+$
+
+# Common patterns for nginx logs
+datepattern = {^LN-BEG}%%ExY(?P<_sep>[-/.])%%m(?P=_sep)%%d[T ]%%H:%%M:%%S(?:[.,]%%f)?(?:\s*%%z)?
+              ^[^\[]*\[({DATE})
+              {^LN-BEG}

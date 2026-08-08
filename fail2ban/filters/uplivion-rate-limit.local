@@ -1,0 +1,23 @@
+# ===============================================
+# Uplivion Rate-Limiting / Server Error Filter
+#
+# This filter catches HTTP requests that returned 429 (Too Many Requests).
+# A 503 is a server/capacity problem and must never be treated as client abuse.
+#
+# The ignoreregex is empty, so no requests are explicitly ignored.
+#
+# Unlike uplivion-auth-failure/unauth-notfound's 401 slice, this one has
+# real teeth against outside abuse: the share_zone rate limit applies to
+# /share, which anyone can reach, so this jail actually protects against
+# link/download hammering by non-owners. The private_zone limits (login,
+# uploads, etc.) share the same ignoreip-overlap caveat as the other jails.
+# ===============================================
+
+[Definition]
+failregex = ^<HOST> .*\" 429 .+$
+ignoreregex =
+
+# Common patterns for nginxs logs
+datepattern = {^LN-BEG}%%ExY(?P<_sep>[-/.])%%m(?P=_sep)%%d[T ]%%H:%%M:%%S(?:[.,]%%f)?(?:\s*%%z)?
+              ^[^\[]*\[({DATE})
+              {^LN-BEG}

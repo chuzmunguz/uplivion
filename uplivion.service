@@ -1,0 +1,32 @@
+# Uplivion service: root-owned code, dedicated service user, external runtime state.
+
+[Unit]
+Description=Uplivion Secure File Transfer
+After=network-online.target nss-lookup.target
+Wants=network-online.target
+
+[Service]
+User=uplivion
+Group=uplivion
+SupplementaryGroups=www-data
+WorkingDirectory=/var/www/uplivion
+EnvironmentFile=/etc/uplivion/uplivion.env
+Environment="PATH=/var/www/uplivion/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="PYTHONDONTWRITEBYTECODE=1"
+ExecStart=/var/www/uplivion/venv/bin/gunicorn --bind 127.0.0.1:8000 --workers 1 --worker-class sync --timeout 300 --no-control-socket --access-logfile - --error-logfile - server:app
+Restart=on-failure
+RestartSec=2
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=/var/lib/uplivion
+
+[Install]
+WantedBy=multi-user.target

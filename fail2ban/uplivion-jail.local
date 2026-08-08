@@ -1,0 +1,48 @@
+# Single-strike by design: /share is the only path a non-owner is ever meant
+# to touch, so it's the only thing this filter whitelists. Everything else
+# (admin, profile, login, uploads, static assets, ...) lives on the LAN/
+# WireGuard-gated private vhost, and legitimate access to it is covered
+# entirely by the host's global /etc/fail2ban/jail.local ignoreip, not by
+# this whitelist — that file lives outside this repo and isn't installed by
+# install.sh, so set it up by hand (owner's LAN, WireGuard, and any other
+# trusted static IPs) before enabling these jails.
+
+# Real teeth against outside attackers — /share is the only reachable
+# public surface, so anything else here is a scanner or a probe.
+[uplivion-http-method]
+enabled = true
+filter = uplivion-http-method
+logpath = /var/log/nginx/uplivion-access.log
+maxretry = 1
+bantime = 259200
+
+# 404 slice = real teeth (catches share-token enumeration). 401 slice =
+# drift-only safety net, see uplivion-unauth-notfound.local for why.
+[uplivion-unauth-notfound]
+enabled = true
+filter = uplivion-unauth-notfound
+logpath = /var/log/nginx/uplivion-access.log
+maxretry = 30
+findtime = 600
+bantime = 259200
+
+# Drift-only safety net under a correctly configured host — see the long
+# comment in uplivion-auth-failure.local for why it can't ban a real
+# outsider today. Kept because it costs nothing.
+[uplivion-auth-failure]
+enabled = true
+filter = uplivion-auth-failure
+logpath = /var/log/nginx/uplivion-access.log
+maxretry = 10
+findtime = 600
+bantime = 259200
+
+# share_zone slice = real teeth (public /share abuse). private_zone slice
+# has the same ignoreip-overlap caveat as the other private-vhost jails.
+[uplivion-rate-limit]
+enabled = true
+filter = uplivion-rate-limit
+logpath = /var/log/nginx/uplivion-access.log
+maxretry = 100
+findtime = 600
+bantime = 259200

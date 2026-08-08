@@ -1,0 +1,24 @@
+# Uplivion authentication-failure signal.
+#
+# Only a rejected POST to /login counts. Expired access/refresh tokens,
+# authorization failures, missing assets, expired links, and unknown paths are
+# intentionally different signals and are not bannable by this filter.
+#
+# NUANCE: /login only exists on the LAN/WireGuard-gated private vhost, so
+# nginx already 403s anything outside that allowlist before this filter ever
+# sees it (caught by uplivion-http-method's 403 rule instead). And anything
+# inside that allowlist is, by design, also in the host's fail2ban ignoreip
+# — so under a correctly configured host, this jail can never actually ban
+# anyone; every source able to trigger it is already exempt. Its only real
+# value is as a safety net if the nginx allowlist and ignoreip (two
+# separately maintained files, nothing enforces they match) ever drift out
+# of sync — then this is what catches brute-forcing from the gap. Costs
+# nothing to keep since it can't false-positive against real traffic.
+
+[Definition]
+failregex = ^<HOST> .*\"POST /login(?:\?[^ ]*)? HTTP/[0-9.]+\" 401 .+$
+ignoreregex =
+
+datepattern = {^LN-BEG}%%ExY(?P<_sep>[-/.])%%m(?P=_sep)%%d[T ]%%H:%%M:%%S(?:[.,]%%f)?(?:\s*%%z)?
+              ^[^\[]*\[({DATE})
+              {^LN-BEG}

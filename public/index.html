@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+<title>Uplivion</title>
+<meta name="theme-color" content="#111111">
+
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<!-- Manifest for Android / Chrome “Add to Home Screen” -->
+<link rel="manifest" href="/site.webmanifest">
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<template id="login-template">
+  <div id="main-title">Uplivion</div>
+  <div class="login-wrapper">
+    <form id="login-form">
+      <div class="inputs">
+
+        <!-- Username with person icon -->
+        <div class="input-wrapper">
+          <span class="input-icon">
+            <!-- Person icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+            </svg>
+          </span>
+          <input type="text" name="username" placeholder="Username" maxlength="25" autocomplete="username" required>
+        </div>
+
+        <!-- Password with lock icon and eye toggle -->
+        <div class="password-wrapper">
+          <span class="input-icon">
+            <!-- Lock icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm6-7h-1V7a5 5 0 0 0-10 0v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-7 0V7a3 3 0 0 1 6 0v3h-6z"/>
+            </svg>
+          </span>
+          <input type="password" name="password" placeholder="Password" maxlength="72" autocomplete="current-password" required>
+          <button type="button" class="toggle-password" aria-label="Show password">
+            <span class="eye-container">
+              <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/>
+                <line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <svg class="eye-icon eye-open hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/>
+              </svg>
+            </span>
+          </button>
+        </div>
+
+        <div id="login-error"></div>
+      </div>
+
+      <div id="login-button-row">
+        <button id="login-button" type="submit" disabled>Login </button>
+      </div>
+    </form>
+  </div>
+</template>
+
+<template id="app-template">
+    <div id="title-container">
+        <div id="title">Uplivion</div>
+         <!-- Burger menu -->
+        <div id="burger-menu">
+            <div id="menu-items">
+                <button type="button" id="admin-btn" class="hidden">Admin</button>
+                <button type="button" id="profile-btn">Profile</button>
+                <button type="button" id="logout">Logout</button>
+            </div>
+        <button type="button" id="burger-icon" aria-label="Open account menu"
+                aria-controls="menu-items" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <line x1="4" y1="6" x2="20" y2="6"/>
+                <line x1="4" y1="12" x2="20" y2="12"/>
+                <line x1="4" y1="18" x2="20" y2="18"/>
+            </svg>
+        </button>
+        </div>
+    </div>
+    <div class="container">
+        <div id="drop-area">
+            <div id="main-content">
+                <div id="file-name">Drag & Drop files here or click to browse</div>
+                <div class="progress-size-wrapper">
+                    <div class="progress-container">
+                        <div class="progress-bar"></div>
+                        <span class="progress-text"></span>
+                    </div>
+                    <div id="file-size" class="file-size"></div>
+                </div>
+
+                <div id="drop-area-message">
+                    <span class="drop-area-message-text placeholder"></span>
+                </div>
+
+            </div>
+            <div id="quota-display"></div>
+
+            <input type="file" id="upload" hidden>
+        </div>
+
+        <!-- The two link limits: max downloads on the left, expiry on the
+             right, split by a separator. Digits are enforced by input listeners
+             in uplivion.js (not pattern attrs). Password-manager autofill is handled
+             structurally by scoping the password fields in their own <form>, so
+             these plain fields need no special attributes. -->
+        <div id="limits-container">
+            <input type="text" id="max-downloads-value" placeholder="Max DL" maxlength="9" inputmode="numeric">
+            <input type="text" id="expiry-value" placeholder="Expiry" maxlength="5">
+            <select id="expiry-unit">
+                <option value="days" selected>Days</option>
+                <option value="hours">Hours</option>
+                <option value="minutes">Minutes</option>
+                <option value="seconds">Seconds</option>
+            </select>
+        </div>
+        <div class="buttons">
+            <button id="upload-btn" disabled>Upload</button>
+            <button id="cancel-btn" class="hidden">Cancel</button>
+            <button id="pause-btn" class="hidden">Pause</button>
+            <button id="resume-btn" class="hidden">Resume</button>
+            <button id="copy-btn" disabled>Copy Link</button>
+            <button id="show-links-btn" disabled>Show Links</button>
+        </div>
+    </div>
+
+    <!-- Hidden by default. File manager modelled on the admin panel: title on
+         the left, an action toolbar (Copy · Settings) + the sort filter on the
+         right. Selecting a card enables the toolbar; per-file settings and the
+         revoke/delete actions live in the settings overlay below. -->
+    <div id="links-overlay">
+      <div id="links-modal">
+        <div class="links-header">
+          <div id="links-header-title">Files</div>
+          <div class="links-header-actions">
+            <select id="sort-links">
+              <option value="created-desc" selected>Created (Newest)</option>
+              <option value="created-asc">Created (Oldest)</option>
+              <option value="size-desc">Size (Largest)</option>
+              <option value="size-asc">Size (Smallest)</option>
+            </select>
+            <div id="links-toolbar">
+              <button type="button" id="links-copy" class="admin-tool" disabled title="Copy link" aria-label="Copy link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+              <button type="button" id="links-settings" class="admin-tool" disabled title="Settings" aria-label="Settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="links-msg" role="status"></div>
+        <div id="links-list" class="links-list">
+          <!-- Only dynamic .link-item elements go here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Per-file link settings: a modal over the file manager holding every
+         per-file setting (renew expiry, max downloads) and the revoke/delete
+         actions. Built by uplivion.js. Close by clicking outside the modal. -->
+    <div id="links-settings-overlay" class="admin-form-overlay hidden">
+      <div id="links-settings-modal">
+        <div id="links-settings-form"></div>
+      </div>
+    </div>
+
+    <!-- Change Password Overlay (hidden by default) -->
+    <div id="change-password-overlay" class="change-password-overlay">
+      <div id="change-password-modal">
+        <h2>Change Password</h2>
+        <p id="password-rules">
+          Password must:<br>
+          - Be at least <strong>8 characters</strong><br>
+          - Be at most <strong>72 UTF-8 bytes</strong><br>
+          - Include <strong>uppercase</strong> and <strong>lowercase</strong> letters<br>
+          - Include <strong>digits</strong> and <strong>special characters</strong> (!@#$%^&*(),.?":{}|<>)
+        </p>
+
+        <!-- The password fields live in their own <form> so the browser's login
+             manager scopes username/autofill detection to this form (which has no
+             username field) instead of latching onto the unrelated Expiry input.
+             display:contents keeps the modal's flex layout unchanged; there is no
+             submit button inside, so Enter never submits. -->
+        <form id="change-password-form" autocomplete="off">
+        <div class="password-wrapper">
+          <input type="password" id="old-password" placeholder="Old password" maxlength="72" autocomplete="current-password" required>
+          <button type="button" class="eye-container"
+                  data-label="old password" aria-label="Show old password">
+            <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/>
+              <line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <svg class="eye-icon eye-open hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="password-wrapper">
+          <input type="password" id="new-password" placeholder="New password" maxlength="72" autocomplete="new-password" required>
+          <button type="button" class="eye-container"
+                  data-label="new password" aria-label="Show new password">
+            <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/>
+              <line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <svg class="eye-icon eye-open hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="password-wrapper">
+          <input type="password" id="repeat-password" placeholder="Repeat new password" maxlength="72" autocomplete="new-password" required>
+          <button type="button" class="eye-container"
+                  data-label="repeated password" aria-label="Show repeated password">
+            <svg class="eye-icon eye-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/>
+              <line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <svg class="eye-icon eye-open hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/>
+            </svg>
+          </button>
+        </div>
+        </form>
+
+        <p id="change-password-msg"></p>
+
+        <div class="button-row">
+          <button class="change-password-ok modal-btn-primary">Change</button>
+          <button class="change-password-cancel modal-btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Overlay (hidden by default). The change-password overlay above
+         is reached from here and stays a standalone overlay. Close by clicking
+         outside the modal. -->
+    <div id="profile-overlay" class="profile-overlay">
+      <div id="profile-modal">
+        <!-- Title on the left, action toolbar on the right — same layout as the
+             admin panel header. The buttons reuse .admin-tool; native title=
+             drives the tooltip. -->
+        <div class="profile-header">
+          <h2>Profile</h2>
+          <div class="profile-actions">
+            <button type="button" id="profile-change-pwd" class="admin-tool" title="Change password" aria-label="Change password">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M11.4 11.6 21 2"/><path d="M15.5 7.5l3.5 3.5"/></svg>
+            </button>
+            <button type="button" id="profile-delete-files" class="admin-tool admin-tool-danger" title="Delete all my files" aria-label="Delete all my files">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            </button>
+            <button type="button" id="profile-delete-account" class="admin-tool admin-tool-danger" title="Delete my account" aria-label="Delete my account">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="profile-body">
+          <div class="profile-name-row">
+            <div class="profile-field">
+              <label class="profile-label" for="profile-first-name">First name</label>
+              <input type="text" id="profile-first-name" maxlength="50" placeholder="Optional">
+            </div>
+            <div class="profile-field">
+              <label class="profile-label" for="profile-last-name">Last name</label>
+              <input type="text" id="profile-last-name" maxlength="50" placeholder="Optional">
+            </div>
+          </div>
+          <p id="profile-msg"></p>
+          <button type="button" id="profile-save" class="modal-btn-primary profile-full">Save changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Panel Overlay (hidden by default) -->
+    <div id="admin-overlay" class="admin-overlay hidden">
+      <div id="admin-modal">
+        <!-- Title on the left, action toolbar on the right. Selection-dependent
+             tools stay disabled until a user row is picked. Close by clicking
+             outside the modal. -->
+        <div class="admin-header">
+          <h2>User Management</h2>
+          <div id="admin-toolbar">
+          <button type="button" id="admin-add-user" class="admin-tool" title="Add user" aria-label="Add user">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 10h-9V1h-4v9H1v4h9v9h4v-9h9z"/></svg>
+          </button>
+          <span class="admin-tool-sep" aria-hidden="true"></span>
+          <button type="button" id="admin-toggle-status" class="admin-tool" disabled title="Enable / disable user" aria-label="Enable or disable user">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+          </button>
+          <button type="button" id="admin-toggle-role" class="admin-tool" disabled title="Promote / demote" aria-label="Promote or demote user">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><path fill-rule="evenodd" d="M17.309 27.537v35.358c0 26.4 23.386 39.092 42.169 49.292l.501.268.508-.268c18.784-10.2 42.169-22.892 42.169-49.292V27.537L59.978 7.433zm42.671 92.471a3.6 3.6 0 0 1-1.687-.431l-2.181-1.186C36.756 107.88 10.25 93.494 10.25 62.894V25.299c0-1.369.791-2.612 2.026-3.198L58.483.339a3.49 3.49 0 0 1 3 0l46.207 21.762a3.54 3.54 0 0 1 2.026 3.198v37.595c0 30.6-26.513 44.986-45.861 55.496l-2.181 1.186a3.6 3.6 0 0 1-1.694.431ZM89.177 85.78H69.589l-5.725-5.718v-5.238h-7.299v-7.299h-5.231l-3.656-3.656q-.18.009-.36.007c-11.005 0-19.955-8.951-19.955-19.955s8.951-19.962 19.955-19.962 19.955 8.958 19.955 19.962q.002.182-.007.353l21.911 21.918zm-16.666-7.059h9.607v-9.607L59.904 46.885l.247-2.329c.064-7.744-5.725-13.539-12.833-13.539S34.422 36.812 34.422 43.92c0 7.115 5.788 12.896 12.896 12.896l2.951-.332 3.988 3.981h9.367v7.299h7.299v9.374zM52.924 44.123c0 2.922-2.372 5.294-5.294 5.294s-5.294-2.372-5.294-5.294 2.372-5.294 5.294-5.294a5.296 5.296 0 0 1 5.294 5.294"/></svg>
+          </button>
+          <button type="button" id="admin-reset-pw" class="admin-tool" disabled title="Reset password" aria-label="Reset password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M11.4 11.6 21 2"/><path d="M15.5 7.5l3.5 3.5"/></svg>
+          </button>
+          <button type="button" id="admin-set-quota" class="admin-tool" disabled title="Set quota" aria-label="Set quota">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+          </button>
+          <span class="admin-tool-sep" aria-hidden="true"></span>
+          <button type="button" id="admin-delete-files" class="admin-tool admin-tool-danger" disabled title="Delete all files" aria-label="Delete all files">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          </button>
+          <button type="button" id="admin-delete-user" class="admin-tool admin-tool-danger" disabled title="Delete user" aria-label="Delete user">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </button>
+          </div>
+        </div>
+
+        <div id="admin-msg" role="status"></div>
+
+        <div id="admin-body">
+          <div id="admin-user-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin add/reset/quota form: a modal over the admin panel so it never
+         pushes the user list or gets cropped. Close by clicking outside. -->
+    <div id="admin-form-overlay" class="admin-form-overlay hidden">
+      <div id="admin-form-modal">
+        <div id="admin-form"></div>
+      </div>
+    </div>
+
+</template>
+
+<script src="uplivion.js"></script>
+
+</body>
+</html>

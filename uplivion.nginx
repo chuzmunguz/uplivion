@@ -1,0 +1,300 @@
+# Global rate limit zones
+# $binary_remote_addr = client IP
+# memory per zone: 10MB
+
+limit_req_zone $binary_remote_addr zone=share_zone:10m rate=3r/m;  # 1 request per 20s
+limit_req_zone $binary_remote_addr zone=login_zone:10m rate=3r/m;  # 1 request per 20s
+limit_req_zone $binary_remote_addr zone=session_zone:10m rate=6r/m;  # 1 request per 10s
+limit_req_zone $binary_remote_addr zone=private_zone:10m rate=10r/s;  # 10 requests per 1s
+# nginx rejects limited requests with 503 by default, while every frontend recovery
+# path recognizes the standard 429 response.
+limit_req_status 429;
+
+# Redirect all HTTP to HTTPS
+server {
+    listen 80;
+    server_name __PUBLIC_DOMAIN__;
+
+    return 301 https://$host$request_uri;
+}
+
+# Public HTTPS server for shared links (/share endpoint)
+server {
+    listen 443 ssl;
+    server_name __PUBLIC_DOMAIN__;
+
+    ssl_certificate /etc/letsencrypt/live/__CERT_DOMAIN__/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/__CERT_DOMAIN__/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    root /var/www/uplivion/public/;
+    client_max_body_size 1m;
+    gzip_types text/plain text/css application/javascript application/json;
+    server_tokens off;
+
+    # Behind a trusted reverse proxy, uncomment and set the proxy's address:
+    #     set_real_ip_from <PROXY_IP_OR_CIDR>;
+    #     real_ip_header X-Forwarded-For;
+    #     real_ip_recursive on;
+    # Never use set_real_ip_from 0.0.0.0/0 — it trusts any peer to spoof client IP.
+
+    # D-11: stable proxy headers once at server level. Every proxied location
+    # inherits these because none declares proxy_set_header of its own.
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # Optional download rate limit for large files
+    limit_rate_after 100m;
+    limit_rate 15m;
+
+    # Security headers (applied to all responses in this server block)
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+    add_header X-XSS-Protection "0" always;
+    add_header Referrer-Policy no-referrer;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Content Security Policy
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; font-src 'self'; frame-ancestors 'none';" always;
+
+    # Global no-cache headers (all responses, errors and success)
+    add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
+    add_header Pragma "no-cache" always;
+    add_header Expires "0" always;
+
+    #Logs
+    access_log /var/log/nginx/uplivion-access.log;
+    error_log  /var/log/nginx/uplivion-error.log;
+
+    # Error pages
+    error_page 401 403 404 500 502 504 /error/error.html;
+    location = /error/error.html {
+        internal;
+    }
+
+    # Allow css for error page
+    location /error/ {
+        alias /var/www/uplivion/public/error/;
+        try_files $uri =404;
+    }
+
+    # Public /share endpoint
+    location /share {
+        proxy_pass http://127.0.0.1:8000/share;
+        proxy_intercept_errors on;
+        limit_except GET { deny all; }
+
+        limit_req zone=share_zone burst=10 nodelay;
+    }
+
+    # Serve only backend-authorized download paths from X-Accel-Redirect.
+    location /internal_share/ {
+        internal;
+        alias /var/lib/uplivion/share/;
+        autoindex off;
+        limit_except GET { deny all; }
+        limit_req zone=share_zone burst=10 nodelay;
+    }
+
+    # Drop everything else
+    location / {
+        return 444;
+    }
+}
+
+
+
+# Private HTTPS server for GUI and Backend (internal endpoints)
+server {
+    listen 80;
+    listen 443 ssl;
+    server_name __LAN_DOMAIN__;
+
+    # SSL/TLS
+    ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
+    ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    # The document root contains browser assets only. Source, configuration,
+    # database files, upload storage, tests, and documentation stay one level up.
+    root /var/www/uplivion/public/;
+
+    server_tokens off;
+
+    client_max_body_size 1m;
+
+    # Behind a trusted reverse proxy, uncomment and set the proxy's address:
+    #     set_real_ip_from <PROXY_IP_OR_CIDR>;
+    #     real_ip_header X-Forwarded-For;
+    #     real_ip_recursive on;
+    # Never use set_real_ip_from 0.0.0.0/0 — it trusts any peer to spoof client IP.
+
+    # D-11: stable proxy headers once at server level. Every proxied location
+    # inherits these because none declares proxy_set_header of its own.
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # IP allowlist for all private endpoints.
+    include /etc/nginx/snippets/uplivion-private-allowlist.conf;
+
+    # Security headers (applied to all responses in this server block)
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+    add_header X-XSS-Protection "0" always;
+    add_header Referrer-Policy no-referrer;
+
+    # Content Security Policy
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; font-src 'self'; frame-ancestors 'none';" always;
+
+    # Global no-cache headers (all responses, errors and success)
+    add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
+    add_header Pragma "no-cache" always;
+    add_header Expires "0" always;
+
+    #Logs
+    access_log /var/log/nginx/uplivion-access.log;
+    error_log  /var/log/nginx/uplivion-error.log;
+
+    # Error pages
+    error_page 401 403 404 500 502 504 /error/error.html;
+    location = /error/error.html {
+        internal;
+    }
+
+    # Defense in depth if a sensitive artifact is ever copied into public/.
+    location ~ (^|/)\. {
+        return 404;
+    }
+
+    location ~ ^/(?:__pycache__|docs|fail2ban|nginx-templates|tests|venv)(?:/|$) {
+        return 404;
+    }
+
+    location ~* \.(?:db|sqlite|sqlite3)(?:-(?:journal|shm|wal))?$ {
+        return 404;
+    }
+
+    location ~* \.(?:cfg|conf|env|ini|json|key|log|md|nginx|pem|pid|py|pyc|pyo|rst|service|sh|socket|sql|toml|txt|xml|ya?ml)$ {
+        return 404;
+    }
+
+    location ~* (?:~|\.(?:bak|old|orig|save|swp|tmp))$ {
+        return 404;
+    }
+
+    # Pin the PWA manifest's Content-Type. .webmanifest is the standard extension and
+    # already sidesteps the .json denial above, but an old/trimmed mime.types could
+    # otherwise serve it as octet-stream; the exact-match location beats the regex rules
+    # and inherits the server root, so the file still serves normally.
+    location = /site.webmanifest {
+        default_type application/manifest+json;
+    }
+
+    # GUI
+    location / {
+        index index.html;
+        try_files $uri $uri/ =404;
+        limit_except GET { deny all; }
+    }
+
+    # Internal /share proxy
+    location /share {
+        proxy_pass http://127.0.0.1:8000/share;
+        proxy_intercept_errors on;
+        limit_except GET { deny all; }
+
+        limit_req zone=share_zone burst=10 nodelay;
+    }
+
+    # Internal file serving via X-Accel-Redirect
+    location /internal_share/ {
+        internal;
+        alias /var/lib/uplivion/share/;
+        autoindex off;
+        limit_except GET { deny all; }
+
+        limit_req zone=share_zone burst=10 nodelay;
+    }
+
+    # Link management. GET lists files or one file's detail; POST saves settings
+    # (/links/<file_id>/settings) or revokes (/links/<file_id>/revoke); DELETE
+    # removes a file (/links/<file_id>). The <file_id> segment contains a slash
+    # (user_id/uuid), so the whole subtree is proxied verbatim.
+    location ~ ^/links(?:/|$) {
+        proxy_pass http://127.0.0.1:8000$request_uri;
+        proxy_intercept_errors on;
+        limit_except GET POST DELETE { deny all; }
+
+        limit_req zone=private_zone burst=5 nodelay;
+    }
+
+    # Other sensitive endpoints (JSON, small requests)
+    location ~ ^/(quota|progress|cancel) {
+        proxy_pass http://127.0.0.1:8000$request_uri;
+        proxy_intercept_errors on;
+        limit_except GET POST { deny all; }
+
+        limit_req zone=private_zone burst=5 nodelay;
+    }
+
+    # Admin panel endpoints (user management). DELETE removes a user.
+    location ~ ^/admin(/|$) {
+        proxy_pass http://127.0.0.1:8000$request_uri;
+        proxy_intercept_errors on;
+        limit_except GET POST DELETE { deny all; }
+
+        limit_req zone=private_zone burst=5 nodelay;
+    }
+
+    # Session management endpoints
+    location ~ ^/(changepwd|logout) {
+        proxy_pass http://127.0.0.1:8000$request_uri;
+        limit_except POST { deny all; }
+
+        limit_req zone=private_zone burst=10 nodelay;
+    }
+
+    # Self-service profile endpoints. POST updates name; DELETE removes the
+    # caller's own files (/profile/files) or account (/profile).
+    location ~ ^/profile(/|$) {
+        proxy_pass http://127.0.0.1:8000$request_uri;
+        proxy_intercept_errors on;
+        limit_except POST DELETE { deny all; }
+
+        limit_req zone=private_zone burst=5 nodelay;
+    }
+
+    # Login endpoint
+    location /login {
+        proxy_pass http://127.0.0.1:8000/login;
+        limit_except POST { deny all; }
+
+        limit_req zone=login_zone burst=10 nodelay;
+    }
+
+    # Session validation endpoints
+    location ~ ^/(check|session) {
+        proxy_pass http://127.0.0.1:8000$request_uri;
+        limit_except POST { deny all; }
+
+        limit_req zone=session_zone burst=10 nodelay;
+    }
+
+    # Upload endpoint (large files)
+    location /upload {
+        proxy_pass http://127.0.0.1:8000/upload;
+        limit_except POST { deny all; }
+
+        limit_req zone=private_zone burst=10 nodelay;
+
+        client_max_body_size 6m;
+        proxy_request_buffering off;
+    }
+}
